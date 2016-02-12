@@ -47,9 +47,10 @@ namespace Slack2FAChecker
 		private void SlackPost(string message)
 		{
 			var client = new SlackClient(ConfigurationManager.AppSettings["SlackWebHookUrl"]);
+			var channel = ConfigurationManager.AppSettings["PostChannel"];
 			var slackMessage = new SlackMessage
 			{
-				Channel = "#test",
+				Channel = channel,
 				Text = message,
 				IconEmoji = ":slack:",
 				Username = "Slack2FAChecker"

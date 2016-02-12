@@ -23,15 +23,18 @@ namespace Slack2FAChecker
 		{
 			var url = ConfigurationManager.AppSettings["SlackApiUrl"];
 			var token = ConfigurationManager.AppSettings["SlackApiToken"];
-
 			var client = new HttpClient();
+
 			var response = await client.GetAsync(url + token);
 			var users = await response.Content.ReadAsAsync<UserList>();
 
-			var no2fauser = users.members.Where(x => x.has_2fa == false && x.deleted == false && x.name != "slackbot").ToList();
-			if (no2fauser.Any())
+			var excludeUser = ConfigurationManager.AppSettings["ExcludeuserName"].Split(',');
+			var no2faUser = users.members.Where(x => x.has_2fa == false && x.deleted == false)
+				.Select(x => x.name).Except(excludeUser);
+
+			if (no2faUser.Any())
 			{
-				SlackPost("2FA 無効ユーザ\n" + string.Join(", ", no2fauser.Select(x => x.name)));
+				SlackPost("2FA 無効ユーザ\n" + string.Join(", ", no2faUser.Select(x => x)));
 			}
 			else
 			{
